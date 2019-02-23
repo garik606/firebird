@@ -8,7 +8,7 @@
 
 [`3.0`, `3.0.4` `latest` (*Dockerfile*)](https://github.com/garik606/firebird/blob/master/Dockerfile)
 
-[`4.0`, `4.0.4` `beta` (*Dockerfile*)](https://github.com/garik606/firebird/blob/4.0.0/Dockerfile)
+[`4.0`, `4.0.4` `beta` (*4.0.0/Dockerfile*)](https://github.com/garik606/firebird/blob/4.0.0/Dockerfile)
 
 ## What's New
 
