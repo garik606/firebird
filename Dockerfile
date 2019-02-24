@@ -2,10 +2,10 @@ FROM debian:jessie
 
 LABEL maintainer="insidesc.igor@gmail.com"
 
-ENV PREFIX=/usr/local/firebird
+ENV PREFIX=/opt/firebird
 ENV VOLUME=/firebird
 ENV DEBIAN_FRONTEND noninteractive
-ENV FBURL=http://web.firebirdsql.org/downloads/prerelease/v40beta1/Firebird-4.0.0.1436-Beta1.tar.bz2
+ENV FBURL=http://web.firebirdsql.org/downloads/prerelease/v40beta1/Firebird-4.0.0.1436-Beta1.amd64.tar.gz
 ENV DBPATH=/firebird/data
 
 COPY build.sh ./build.sh
@@ -29,6 +29,6 @@ RUN chmod +x ${PREFIX}/docker-healthcheck.sh \
     && rm -rf /var/lib/apt/lists/*
 HEALTHCHECK CMD ${PREFIX}/docker-healthcheck.sh || exit 1
 
-ENTRYPOINT ["/usr/local/firebird/docker-entrypoint.sh"]
+ENTRYPOINT ["/opt/firebird/docker-entrypoint.sh"]
 
-CMD ["/usr/local/firebird/bin/fbguard"]
+CMD ["/opt/firebird/bin/fbguard"]
