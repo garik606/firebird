@@ -5,7 +5,7 @@ LABEL maintainer="insidesc.igor@gmail.com"
 ENV PREFIX=/usr/local/firebird
 ENV VOLUME=/firebird
 ENV DEBIAN_FRONTEND noninteractive
-ENV FBURL=https://github.com/FirebirdSQL/firebird/archive/T4_0_0_Beta1.tar.gz
+ENV FBURL=http://web.firebirdsql.org/downloads/prerelease/v40beta1/Firebird-4.0.0.1436-Beta1.tar.bz2
 ENV DBPATH=/firebird/data
 
 COPY build.sh ./build.sh
