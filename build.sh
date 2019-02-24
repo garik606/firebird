@@ -22,16 +22,7 @@ cd /home/firebird
 curl -L -o firebird-source.tar.bz2 -L \
     "${FBURL}"
 tar --strip=1 -xf firebird-source.tar.bz2
-./configure \
-    --prefix=${PREFIX}/ --with-fbbin=${PREFIX}/bin/ --with-fbsbin=${PREFIX}/bin/ --with-fblib=${PREFIX}/lib/ \
-    --with-fbinclude=${PREFIX}/include/ --with-fbdoc=${PREFIX}/doc/ --with-fbudf=${PREFIX}/UDF/ \
-    --with-fbsample=${PREFIX}/examples/ --with-fbsample-db=${PREFIX}/examples/empbuild/ --with-fbhelp=${PREFIX}/help/ \
-    --with-fbintl=${PREFIX}/intl/ --with-fbmisc=${PREFIX}/misc/ --with-fbplugins=${PREFIX}/ \
-    --with-fbconf="${VOLUME}/etc/" --with-fbmsg=${PREFIX}/ \
-    --with-fblog="${VOLUME}/log/" --with-fbglock=/var/firebird/run/ \
-    --with-fbsecure-db="${VOLUME}/system"
-make -j${CPUC}
-make silent_install
+./install.sh
 cd /
 rm -rf /home/firebird
 find ${PREFIX} -name .debug -prune -exec rm -rf {} \;
