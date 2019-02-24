@@ -19,9 +19,9 @@ apt-get install -qy --no-install-recommends \
     zlib1g-dev
 mkdir -p /home/firebird
 cd /home/firebird
-curl -L -o firebird-source.tar.bz2 -L \
+curl -L -o firebird-source.tar.gz -L \
     "${FBURL}"
-tar --strip=1 -xf firebird-source.tar.bz2
+tar --strip=1 -xf firebird-source.tar.gz
 ./install.sh
 cd /
 rm -rf /home/firebird
