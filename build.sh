@@ -1,52 +1,48 @@
 #!/bin/bash
 set -e
-CPUC=$(awk '/^processor/{n+=1}END{print n}' /proc/cpuinfo)
-
 apt-get update
-apt-get install -qy --no-install-recommends \
-    libicu52 \
-    libtommath0
 apt-get install -qy --no-install-recommends \
     bzip2 \
     ca-certificates \
     curl \
-    g++ \
-    gcc \
     libicu-dev \
-    libncurses5-dev \
-    libtommath-dev \
-    make \
-    zlib1g-dev
+    libtommath-dev 
 mkdir -p /home/firebird
 cd /home/firebird
 curl -L -o firebird-source.tar.gz -L \
     "${FBURL}"
 tar --strip=1 -xf firebird-source.tar.gz
-./install.sh
+
+chmod +x ./install.sh && bash ./install.sh -silent
 cd /
 rm -rf /home/firebird
-find ${PREFIX} -name .debug -prune -exec rm -rf {} \;
 apt-get purge -qy --auto-remove \
     bzip2 \
     ca-certificates \
-    curl \
-    g++ \
-    gcc \
-    libicu-dev \
-    libncurses5-dev \
-    libtommath-dev \
-    make \
-    zlib1g-dev
+    curl 
 rm -rf /var/lib/apt/lists/*
 
-mkdir -p "${PREFIX}/skel/"
 
-# This allows us to initialize a random value for sysdba password
-mv "${VOLUME}/system/security3.fdb" "${PREFIX}/skel/security3.fdb"
+mkdir -p  "${PREFIX}/skel"
+
+mv "${PREFIX}/security4.fdb" "${PREFIX}/skel/security4.fdb"
+
+mkdir -p "${PREFIX}/skel/etc"
+
+cp "${PREFIX}/databases.conf" "${PREFIX}/skel/etc/databases.conf"
+cp "${PREFIX}/fbtrace.conf" "${PREFIX}/skel/etc/fbtrace.conf"
+cp "${PREFIX}/firebird.conf" "${PREFIX}/skel/etc/firebird.conf"
+cp "${PREFIX}/replication.conf" "${PREFIX}/skel/etc/replication.conf"
 
 # Cleaning up to restrict access to specific path and allow changing that path easily to
 # something standard. See github issue https://github.com/jacobalberty/firebird-docker/issues/12
-sed -i 's/^#DatabaseAccess/DatabaseAccess/g' "${VOLUME}/etc/firebird.conf"
-sed -i "s~^\(DatabaseAccess\s*=\s*\).*$~\1Restrict ${DBPATH}~" "${VOLUME}/etc/firebird.conf"
+sed -i 's/^#DatabaseAccess/DatabaseAccess/g' "${PREFIX}/firebird.conf"
+sed -i "s~^\(DatabaseAccess\s*=\s*\).*$~\1Restrict ${DBPATH}~" "${PREFIX}/firebird.conf"
 
-mv "${VOLUME}/etc" "${PREFIX}/skel"
+# echo "DatabaseAccess = Full" >>"${PREFIX}/firebird.conf" && \
+# echo "ServerMode = SuperClassic" >>"${PREFIX}/firebird.conf" && \
+# echo "WireCrypt = Enabled" >>"${PREFIX}/firebird.conf" && \
+# echo "AuthServer = Legacy_Auth, Srp, Win_Sspi " >>"${PREFIX}/firebird.conf" && \
+# echo "UserManager = Legacy_UserManager, Srp" >>"${PREFIX}/firebird.conf"
+
+ln -s ${PREFIX}/bin/* /usr/local/bin
