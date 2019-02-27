@@ -27,7 +27,7 @@ RUN chmod +x ${PREFIX}/docker-healthcheck.sh \
     && apt-get update \
     && apt-get -qy install netcat \
     && rm -rf /var/lib/apt/lists/*
-HEALTHCHECK CMD ${PREFIX}/docker-healthcheck.sh || exit 1
+HEALTHCHECK CMD /opt/firebird/docker-healthcheck.sh || exit 1
 
 ENTRYPOINT ["/opt/firebird/docker-entrypoint.sh"]
 
