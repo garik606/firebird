@@ -8,29 +8,13 @@
 
 [`3.0`, `3.0.4` `latest` (*Dockerfile*)](https://github.com/garik606/firebird4/blob/master/Dockerfile)
 
-[`4.0`, `4.0.0` `beta` (*4.0.0/Dockerfile*)](https://github.com/garik606/firebird4/blob/4.0.0/Dockerfile)
+[`4.0`, `4.0.0-beta1` `beta1` (*4.beta1/Dockerfile*)](https://github.com/garik606/firebird4/blob/4.beta1-jessie/Dockerfile)
 
 
 ## Default password for `sysdba`
 The default password for `sysdba` is randomly generated when you first launch the container, 
 look in the docker log for your container or check `/firebird/etc/SYSDBA.password`.
 Alternatively you may pass the environment variable ISC_PASSWORD to set the default password.
-
-## Update policy
-### Stable releases
-I will maintain current versions of Stable firebird releases. Each version of the stable branches
-will recieve a tag on both github and docker that will be semi permanent. The latest tagged
-versions will periodically be deleted and remade if a new feature for the image is created.
-Tags other than the latest release will not be updated as image specific features are implemented
-#### 3.0
-Any new image features will be developed on the 3.0 releases
-#### 2.5
-On request I am happy to attempt to backport any 3.0 image feature to the 2.5 branches
-### Development policy
-4.0 is presently in alpha I would like to start maintaining images when it moves into beta if time permits.
-Until 4.0 hits RC stage I don't believe it will be feasible for me to maintain up to date images of 4.0 though
-and until final release is made I do not intend to promise stability of tags, ie as new release candidates or betas 
-get released I may remove older 4.0 tags.
 
 ## Description
 This is a Firebird SQL Database container.
