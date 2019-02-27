@@ -59,7 +59,7 @@ file_env() {
 }
 
 confSet() {
-    confFile="${VOLUME}/etc/firebird.conf"
+    confFile="${PREFIX}/firebird.conf"
     # Uncomment specified value
     sed -i "s/^#${1}/${1}/g" "${confFile}"
     # Set Value to new value
@@ -67,11 +67,15 @@ confSet() {
 }
 
 # Create any missing folders
-mkdir -p "${VOLUME}/system"
-mkdir -p "${VOLUME}/log"
-mkdir -p "${VOLUME}/data"
+
+
 if [[ ! -e "${VOLUME}/etc/" ]]; then
-    cp -R "${PREFIX}/skel/etc" "${VOLUME}/"
+    echo "create settings file"
+    mkdir -p "${VOLUME}/etc/"
+    mkdir -p "${VOLUME}/system"
+    mkdir -p "${VOLUME}/log"
+    mkdir -p "${VOLUME}/data"
+    
     file_env 'EnableLegacyClientAuth'
     file_env 'EnableWireCrypt'
     if [[ ${EnableLegacyClientAuth} == 'true' ]]; then
@@ -83,23 +87,39 @@ if [[ ! -e "${VOLUME}/etc/" ]]; then
     if [[ ${EnableWireCrypt} == 'true' ]]; then
         confSet WireCrypt "enabled"
     fi
+    
+    cp "${PREFIX}/firebird.conf" "${VOLUME}/etc/firebird.conf"
+    cp "${PREFIX}/databases.conf" "${VOLUME}/etc/databases.conf"
+    cp "${PREFIX}/fbtrace.conf" "${VOLUME}/etc/fbtrace.conf" 
+    cp "${PREFIX}/replication.conf" "${VOLUME}/etc/replication.conf"
+    
+else 
+    echo "copy settings file"
+    cp "${VOLUME}/etc/firebird.conf" "${PREFIX}/firebird.conf"
+    cp "${VOLUME}/etc/databases.conf" "${PREFIX}/databases.conf"
+    cp "${VOLUME}/etc/fbtrace.conf" "${PREFIX}/fbtrace.conf"
+    cp "${VOLUME}/etc/replication.conf" "${PREFIX}/replication.conf"
 fi
 
-if [ ! -f "${VOLUME}/system/security3.fdb" ]; then
-    cp "${PREFIX}/skel/security3.fdb" "${VOLUME}/system/security3.fdb"
+# ln -s "${PREFIX}/firebird.log" "${VOLUME}/log/firebird.log"
+
+if [ ! -f "${VOLUME}/system/security4.fdb"  ]; then
+    cp "${PREFIX}/skel/security4.fdb" "${PREFIX}/security4.fdb"
     file_env 'ISC_PASSWORD'
     if [ -z ${ISC_PASSWORD} ]; then
        ISC_PASSWORD=$(createNewPassword)
        echo "setting 'SYSDBA' password to '${ISC_PASSWORD}'"
     fi
 
-    ${PREFIX}/bin/isql -user sysdba "${VOLUME}/system/security3.fdb" <<EOL
+    ${PREFIX}/bin/isql -user sysdba "${PREFIX}/security4.fdb" <<EOL
 create or alter user SYSDBA password '${ISC_PASSWORD}';
 commit;
 quit;
 EOL
 
-    cat > "${VOLUME}/etc/SYSDBA.password" <<EOL
+    cp -f "${PREFIX}/security4.fdb" "${VOLUME}/system/security4.fdb"
+
+    cat > "${PREFIX}/SYSDBA.password" <<EOL
 # Firebird generated password for user SYSDBA is:
 #
 ISC_USER=sysdba
@@ -117,39 +137,19 @@ ISC_PASSWD=${ISC_PASSWORD}
 
 EOL
 
+    cp -f "${PREFIX}/SYSDBA.password" "${VOLUME}/system/SYSDBA.password"
+    
+else
+    echo "no setting SYSDBA"
+    cp "${VOLUME}/system/security4.fdb" "${PREFIX}/security4.fdb"
+    cp "${VOLUME}/system/SYSDBA.password" "${PREFIX}/SYSDBA.password"
+    
+    chown firebird:firebird "${PREFIX}/security4.fdb"
+    chmod 660 "${PREFIX}/security4.fdb"
+    chmod 600 "${PREFIX}/SYSDBA.password"
+    
+
 fi
 
-if [ -f "${VOLUME}/etc/SYSDBA.password" ]; then
-    source "${VOLUME}/etc/SYSDBA.password"
-fi;
-
-file_env 'FIREBIRD_USER'
-file_env 'FIREBIRD_PASSWORD'
-file_env 'FIREBIRD_DATABASE'
-
-build isql "set sql dialect 3;"
-if [ ! -z "${FIREBIRD_DATABASE}" -a ! -f "${DBPATH}/${FIREBIRD_DATABASE}" ]; then
-    if [ "${FIREBIRD_USER}" ];  then
-        build isql "CONNECT employee USER '${ISC_USER}' PASSWORD '${ISC_PASSWORD}';"
-        if [ -z "${FIREBIRD_PASSWORD}" ]; then
-            FIREBIRD_PASSWORD=$(createNewPassword)
-            echo "setting '${FIREBIRD_USER}' password to '${FIREBIRD_PASSWORD}'"
-        fi
-        build isql "CREATE USER ${FIREBIRD_USER} PASSWORD '${FIREBIRD_PASSWORD}';"
-        build isql "COMMIT;"
-    fi
-
-    stmt="CREATE DATABASE '${DBPATH}/${FIREBIRD_DATABASE}'"
-    if [ "${FIREBIRD_USER}" ];  then
-        stmt+=" USER '${FIREBIRD_USER}' PASSWORD '${FIREBIRD_PASSWORD}'"
-    fi
-    stmt+=" DEFAULT CHARACTER SET UTF8;";
-    build isql "${stmt}";
-    build isql "COMMIT;"
-    if [ "${isql}" ]; then
-        build isql "QUIT;"
-        run isql
-    fi
-fi
 
 $@
